@@ -6,8 +6,7 @@ node_modules/
 
 # Vercel
 .vercel/
-.env*.local
-.env
+.env*
 
 # Build output
 dist/

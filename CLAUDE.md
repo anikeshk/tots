@@ -6,6 +6,8 @@ Guidance for Claude Code when working in this repository.
 
 `tots` is an AI agent built with [eve](https://eve.dev/docs), Vercel's filesystem-first framework for durable AI agents. It is at an early, scaffolded stage: a single agent with default instructions and the eve channel.
 
+**`PLAN.md` is the build plan** (TOTS: assessing whether a CVE is valid for a given component@version). Read it before starting work, and keep its Decisions section current.
+
 - Package manager: **pnpm** (see `pnpm-workspace.yaml`)
 - Runtime: **Node.js 24.x**
 - Key dependencies: `eve`, `ai` (AI SDK 7), `@vercel/connect`, `zod` v4
@@ -48,5 +50,5 @@ There are no build/test/lint scripts in `package.json` yet.
 - **Model:** `agent/agent.ts` uses `chatgpt(...)` from `eve/models/openai`; the selected provider is recorded in `.eve/provider.json`.
 - **Auth:** `placeholderAuth()` in `agent/channels/eve.ts` blocks browser requests in production. Replace it with a real auth provider (or `none()` for a public demo) before deploying.
 - **Module type:** the package is ESM (`"type": "module"`), which AI SDK 7 requires. Use `import`/`export`, not `require`.
-- **Vercel:** The project is not yet linked (no `.vercel/`, `vercel.ts`, or `vercel.json`). Use `vercel link` / `vercel env pull` when deploying; never commit `.env*` files.
+- **Vercel:** Linked to the `tots` Vercel project (`.vercel/project.json`, gitignored). No `vercel.ts`/`vercel.json` yet. Run `vercel env pull` to refresh `.env.local` (OIDC token expires); never commit `.env*` files.
 - Do not edit anything under `.eve/` or `node_modules/.cache/eve/` — they are generated.
