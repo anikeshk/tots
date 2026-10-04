@@ -4,7 +4,7 @@
 
 TOTS does not replace the CVE Program's status. It shows the official status (`PUBLISHED`, `DISPUTED`, `REJECTED`) next to its own evidence-based assessment and cites a source for every conclusion.
 
-Status: decisions recorded (§8). Ready to build.
+Status: built. Changes made during the build are listed in §10.
 
 ---
 
@@ -24,7 +24,7 @@ A public web page on Vercel that lists a small set of assessments. Each assessme
 | # | CVE | Target | Background | Expected |
 |---|-----|--------|------------|----------|
 | 1 | CVE-2024-45296 ([GHSA-9wv6-86v2-598j](https://github.com/advisories/GHSA-9wv6-86v2-598j)) | `path-to-regexp@6.2.2` | ReDoS from backtracking regexes on `/:a-:b` routes; fixed in 6.3.0. The maintainer wrote the advisory and the fix. The PoC is a single input string. | **SUPPORTED** |
-| 2 | CVE-2024-10491 | `express@5.2.1` | `res.links` Link-header injection. NVD scopes it to express 3.x, but some scanners also flag 4.x and 5.x. In [expressjs/express#6222](https://github.com/expressjs/express/issues/6222) the maintainers say it was patched in v4 and that the 4.x/5.x reports are wrong. One commenter says they reproduced it on 5.1.0. | **Not fixed in advance.** Run it and see; likely LIKELY INVALID or DISPUTED. |
+| 2 | CVE-2024-10491 | `express@5.2.1` | `res.links` Link-header injection. NVD scopes it to express 3.x, but some scanners also flag 4.x and 5.x. In [expressjs/express#6222](https://github.com/expressjs/express/issues/6222) the maintainers say it was patched in v4 and that the 4.x/5.x reports are wrong. One commenter says they reproduced it on 5.1.0. | **DISPUTED** (first run, 2026-10-04): the PoC injects the same `Link` header on 3.21.2, 4.x, and 5.2.1, and no fix commit exists, while the maintainers say 4.x/5.x are unaffected. |
 
 Only express@5.2.1 is being judged in case 2. The technical agent still runs the PoC once against a known-vulnerable version (3.21.2) as a **positive control**: a PoC that fails on 5.2.1 only means something if it succeeds on a version that is actually vulnerable.
 
@@ -137,7 +137,7 @@ Alongside the label, it computes an **Evidence Quality** checklist: fix commit f
 - A `defineWorkflowTool` that runs steps 1–6. It is durable and resumes after a crash.
 - `ctx.agent("technical").send(..., { outputSchema })` and the discourse call run under `Promise.all`.
 - Both subagents set `tool: false`, so the root model can't call them ad hoc.
-- Before doing anything, it checks the `live-runs` flag **on the server** (§3.9) and refuses when the flag is off.
+- Its input is a `runId`. It starts only if it can atomically claim a `queued` row (§3.9), and refuses otherwise.
 - It updates the run row as it goes (`running` → `succeeded` / `failed`) and writes the `TotsAssessment` (§3.8).
 
 ### 3.8 Persistence — Neon Postgres (Vercel Marketplace)
@@ -164,10 +164,10 @@ Access goes through `@neondatabase/serverless` with a lazily created client, so 
 ### 3.9 Live-run flag — Vercel Flags
 - One boolean flag, `live-runs`, default **off**, defined with the Flags SDK (`flags` + `@flags-sdk/vercel`).
 - **UI:** the Re-run button and the Add CVE form are disabled when it's off.
-- **Server:** `investigate_cve` checks the same flag. This matters because `none()` auth makes `/eve/v1` public, so hiding a button alone is not protection.
+- **Server:** the Add CVE and Re-run server actions check the flag, then create a `queued` run row and open the eve session. `investigate_cve` only runs a run it can claim from `queued`. Since `/eve/v1` is public under `none()`, this is what stops anonymous callers from starting investigations: they can't create queued rows.
 - **Turning it on:** two ways.
   - **Live demo or adding new cases:** turn the flag on in the Vercel dashboard. This takes effect immediately, with no redeploy. Turn it off afterwards.
-  - **Just you:** override it in your own browser with the Vercel Toolbar's Flags Explorer. This only unlocks the UI, since the toolbar override doesn't reach the server-side check inside the workflow tool. To start runs, either use the dashboard toggle or start them through a Next.js server action that evaluates the flag with your override cookie. Confirm which of these the Flags SDK supports during build.
+  - **Just you:** override it in your own browser with the Vercel Toolbar's Flags Explorer. Because the check happens in the server action, inside your own request, the override applies to starting runs as well as to the UI.
 - **Cost guard:** the root agent's default tools (bash, web_search, …) are switched off, so anonymous chat with `/eve/v1` can't do much. A Vercel Firewall rate limit on `/eve/v1/*` is a cheap extra layer.
 
 ### 3.10 UI — `app/` (Next.js + `withEve`)
@@ -177,7 +177,7 @@ Access goes through `@neondatabase/serverless` with a lazily created client, so 
   - technical and discourse evidence side by side
   - Jev scores
   - the policy trace
-- Re-run (flag-gated) starts a session with `followSubagents: true`, streams progress, and reloads the report when the run row reaches `succeeded`. If a run is already in progress, the page re-attaches to its `session_id` instead of starting a new one.
+- Re-run (flag-gated) queues a run and the server action opens the eve session (`eve/client`). The page polls `/api/runs/<id>` for the run's stage and reloads the report when it finishes. The browser holds no long-lived stream, so a reload or closed tab doesn't affect the run.
 
 ### 3.11 Evals
 - Case 1 checks the label is SUPPORTED and the positive control reproduced.
@@ -199,12 +199,16 @@ zod v4. The types are `CveRecord`, `Claim`, `TechnicalFinding`, `DiscourseItem`,
 - `generatedAt`, `models`
 
 ## 5. Models
-Models are referenced as AI Gateway strings, which uses the existing `vercel link` and OIDC token.
+Models are referenced as AI Gateway strings, which use the existing `vercel link` and OIDC token. Gateway needs paid credits; free-tier accounts can't call these models or Jev.
 
 | Role | Model |
 |------|-------|
-| Root, claim decomposition, subagents | `openai/gpt-5.6-sol` (the current model, moved to a Gateway string; easy to change per subagent) |
+| Root (only dispatches `investigate_cve`) | `openai/gpt-5.6-luna-fast` |
+| Claim decomposition | `openai/gpt-5.6-sol` |
+| Technical and discourse investigators | `anthropic/claude-sonnet-5.5` (OpenAI's cyber safety filter rejected the PoC work) |
 | Judge | `typesafe-ai/jev` |
+
+Locally, `agent/lib/models.ts` uses the ChatGPT subscription from `eve dev` /login unless `TOTS_MODELS=gateway` is set. Jev is Gateway-only, so in that mode the judge asks the ChatGPT model the same typed questions through structured output, and the report records which judge produced the scores.
 
 ---
 
@@ -241,3 +245,11 @@ Phases 3 and 4 can be built in parallel.
 - **Public endpoint:** with `none()`, anyone can open a chat session. Mitigations: the server-side flag check in the tool, default tools disabled, and a Firewall rate limit.
 - **Jev's state limit and its experimental API.** `experimental_evaluate` can change in patch releases. Pin `ai` and wrap the call in `judge.ts`.
 - **Sandbox cold start** makes live runs slow (tens of seconds or more). Saved results cover the normal page load.
+
+## 10. Changes during the build
+- **Run gating:** the flag is checked in the server action, and the workflow tool only runs `queued` rows. This replaces "the tool checks the flag" and resolves the earlier Toolbar-override question.
+- **Live progress:** the run row's `stage` is polled instead of streaming the session with `useEveAgent`. eve does not follow sessions that a workflow tool opens with `ctx.agent`, so `followSubagents` wouldn't have shown investigator progress anyway.
+- **Investigator independence is enforced, not just instructed:** the technical investigator's `web_fetch` refuses GitHub issue, discussion, and PR-conversation pages, and its `web_search` is disabled.
+- **Local models:** ChatGPT-subscription mode for local dev (§5).
+- **Investigator models:** OpenAI's cyber filter rejected the PoC work, so the investigators use Claude. Anthropic's filter also stopped one ReDoS run once; the technical instructions now frame PoCs as maintainer-style regression tests, and the retry succeeded.
+- **Case 2 result:** DISPUTED, not LIKELY INVALID (see §1).

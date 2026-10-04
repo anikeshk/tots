@@ -4,51 +4,66 @@ Guidance for Claude Code when working in this repository.
 
 ## Project
 
-`tots` is an AI agent built with [eve](https://eve.dev/docs), Vercel's filesystem-first framework for durable AI agents. It is at an early, scaffolded stage: a single agent with default instructions and the eve channel.
+TOTS (Threat Opinion & Technical Scrutiny) assesses whether a CVE is valid for a given package version (npm only). It is a Next.js app plus an [eve](https://eve.dev/docs) agent, deployed together on Vercel.
 
-**`PLAN.md` is the build plan** (TOTS: assessing whether a CVE is valid for a given component@version). Read it before starting work, and keep its Decisions section current.
+**`PLAN.md` is the design.** Read it before changing behaviour, and keep its Decisions (§8) and Changes (§10) sections current.
 
-- Package manager: **pnpm** (see `pnpm-workspace.yaml`)
-- Runtime: **Node.js 24.x**
-- Key dependencies: `eve`, `ai` (AI SDK 7), `@vercel/connect`, `zod` v4
+- Package manager: **pnpm**. Runtime: **Node.js 24.x**. ESM only (`"type": "module"`).
+- Key dependencies: `eve`, `next` 16, `ai` (AI SDK 7, pinned), `zod` v4, `flags` + `@flags-sdk/vercel`, `@neondatabase/serverless`.
 
 ## Layout
 
 ```
-agent/                 # The eve agent — everything here is compiled by eve
-  agent.ts             # defineAgent(): model + reasoning config
-  instructions.md      # System prompt / agent identity
-  channels/eve.ts      # eve channel + auth (vercelOidc, localDev, placeholderAuth)
-  skills/eve/SKILL.md  # eve skill (installed via skills-lock.json, do not hand-edit)
-.eve/                  # Local eve dev state (snapshots, logs, caches) — gitignored, never edit
-skills-lock.json       # Lockfile for installed agent skills
+agent/                      # The eve agent, compiled by eve, mounted at /eve/v1 by withEve
+  agent.ts                  # Root: defaultTools off; its only tool is investigate_cve
+  instructions.md
+  channels/eve.ts           # Auth: vercelOidc, localDev, none() (public demo)
+  tools/investigate_cve.ts  # Workflow tool: the whole pipeline (claim run → record → claims → investigators → Jev → policy → save)
+  subagents/technical/      # Sandbox PoC investigator (Vercel Sandbox; web_fetch blocks discourse pages)
+  subagents/discourse/      # Who-said-what investigator (GitHub tools, web_fetch, web_search)
+  lib/                      # Shared with the UI: schemas, db, records, claims, judge, policy, models, github
+  skills/eve/               # eve skill (installed via skills-lock.json, do not hand-edit)
+app/                        # Next.js UI: list (/), report (/a/[id]), server actions, /api/runs/[id]
+flags.ts                    # live-runs flag (Vercel Flags)
+db/migrations/              # Plain SQL, applied by pnpm db:migrate
+evals/                      # eve evals: one per seed case + provenance
+tests/                      # node:test unit tests (policy)
+scripts/                    # migrate.ts, seed.ts
 ```
 
-In eve, an agent is a directory: instructions, skills, tools, connections, channels, subagents, and schedules are each files under `agent/`. Add capabilities by adding files in the matching subdirectory (e.g. `agent/tools/`, `agent/connections/`, `agent/schedules/`) rather than wiring them up manually.
+## Docs: read before writing code
 
-## eve docs — read before writing eve code
-
-The bundled docs match the installed version exactly and are the source of truth:
-
-```
-node_modules/eve/docs/README.md
-```
-
-Read the relevant guide there before adding or changing tools, skills, connections, channels, subagents, schedules, or evals. Do not rely on memorized eve APIs. Likewise for AI SDK 7, check `node_modules/ai/docs/`.
+- eve: `node_modules/eve/docs/README.md` (matches the installed version; do not rely on memorized eve APIs)
+- AI SDK 7: `node_modules/ai/docs/`
+- Next.js 16: `node_modules/next/dist/docs/`
 
 ## Commands
 
 ```sh
-pnpm install          # install deps (required before docs/ types are available)
-npx eve dev           # run the agent locally with hot reload (writes to .eve/)
+pnpm dev              # Next.js + eve dev server (local models: ChatGPT login; TOTS_MODELS=gateway for AI Gateway)
+pnpm typecheck        # tsc --noEmit
+pnpm test             # policy unit tests
+pnpm db:migrate       # apply db/migrations to DATABASE_URL
+pnpm seed             # run both seed cases against a running `pnpm dev`, writing to Neon
+pnpm eval             # eve evals; while `pnpm dev` runs, add `-- --url http://localhost:3000`. Each runs a full investigation and writes a run to the shared DB
 ```
-
-There are no build/test/lint scripts in `package.json` yet.
 
 ## Notes and gotchas
 
-- **Model:** `agent/agent.ts` uses `chatgpt(...)` from `eve/models/openai`; the selected provider is recorded in `.eve/provider.json`.
-- **Auth:** `placeholderAuth()` in `agent/channels/eve.ts` blocks browser requests in production. Replace it with a real auth provider (or `none()` for a public demo) before deploying.
-- **Module type:** the package is ESM (`"type": "module"`), which AI SDK 7 requires. Use `import`/`export`, not `require`.
-- **Vercel:** Linked to the `tots` Vercel project (`.vercel/project.json`, gitignored). No `vercel.ts`/`vercel.json` yet. Run `vercel env pull` to refresh `.env.local` (OIDC token expires); never commit `.env*` files.
-- Do not edit anything under `.eve/` or `node_modules/.cache/eve/` — they are generated.
+- **Run gating:** only the flag-checked server actions in `app/actions.ts` create `queued` runs; `investigate_cve` only runs a run it can claim from `queued`. Keep it that way, because `/eve/v1` is public.
+- **Models:** `agent/lib/models.ts`. Deployed code always uses AI Gateway (needs paid credits). OpenAI models refuse the technical PoC work (cyber safety filter), so the investigators use Claude.
+- **Workflow tools:** side effects, `process.env`, and dates belong in `"use step"` functions; the workflow body must stay deterministic.
+- **Model output schemas:** avoid `z.record`, `.optional()`, and array `.max()` in schemas sent to models (`TechnicalReport`, `DiscourseReport`, `ClaimList`).
+- **Vercel:** linked to the `tots` project. Run `vercel env pull` to refresh `.env.local` (the OIDC token expires). Never commit `.env*` files.
+- **Marketplace installs** (e.g. `vercel integration add`) may drop provider skills into `agent/skills/`, which would load them into the TOTS agent. Remove them.
+- Do not edit anything under `.eve/`, `.next/`, or `node_modules/.cache/eve/`; they are generated.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

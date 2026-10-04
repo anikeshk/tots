@@ -1,10 +1,16 @@
 {
   "name": "tots",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "TOTS: Threat Opinion & Technical Scrutiny. Is this CVE real for this package version?",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test 'tests/*.test.ts'",
+    "db:migrate": "dotenv -e .env.local -- tsx scripts/migrate.ts",
+    "seed": "dotenv -e .env.local -- tsx scripts/seed.ts",
+    "eval": "eve eval"
   },
   "repository": {
     "type": "git",
@@ -19,12 +25,34 @@
   },
   "homepage": "https://github.com/anikeshk/tots#readme",
   "dependencies": {
-    "@vercel/connect": "2.2.0",
-    "ai": "^7.0.105",
+    "@flags-sdk/vercel": "^1.5.0",
+    "@neondatabase/serverless": "^1.2.0",
+    "@vercel/oidc": "^4.0.0",
+    "@vercel/toolbar": "^0.2.7",
+    "ai": "7.0.127",
     "eve": "^0.71.0",
+    "flags": "^4.3.1",
+    "next": "^16.3.8",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "semver": "^7.8.5",
+    "server-only": "^0.0.1",
     "zod": "4.5.4"
   },
   "engines": {
     "node": "24.x"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/semver": "^7.8.0",
+    "dotenv-cli": "^11.0.0",
+    "just-bash": "^3.6.0",
+    "microsandbox": "0.5.5",
+    "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }
