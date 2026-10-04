@@ -1,0 +1,30 @@
+{
+  "name": "tots",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anikeshk/tots.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/anikeshk/tots/issues"
+  },
+  "homepage": "https://github.com/anikeshk/tots#readme",
+  "dependencies": {
+    "@vercel/connect": "2.2.0",
+    "ai": "^7.0.105",
+    "eve": "^0.71.0",
+    "zod": "4.5.4"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

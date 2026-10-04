@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# eve local runtime state (dev snapshots, logs, caches, workflow data)
+.eve/
+
+# Vercel
+.vercel/
+.env*.local
+.env
+
+# Build output
+dist/
+.output/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+# Claude Code local settings
+.claude/settings.local.json
