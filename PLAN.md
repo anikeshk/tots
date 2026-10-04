@@ -1,6 +1,6 @@
 # TOTS — Plan
 
-**TOTS: Threat Opinion & Technical Scrutiny.** Given a published CVE and the component@version it is being flagged on, decide how well the public evidence supports it: real, disputed, overstated, or noise?
+**TOTS.** Given a published CVE and the component@version it is being flagged on, decide how well the public evidence supports it: real, disputed, overstated, or noise?
 
 TOTS does not replace the CVE Program's status. It shows the official status (`PUBLISHED`, `DISPUTED`, `REJECTED`) next to its own evidence-based assessment and cites a source for every conclusion.
 
@@ -172,7 +172,7 @@ Access goes through `@neondatabase/serverless` with a lazily created client, so 
 
 ### 3.10 UI — `app/` (Next.js + `withEve`)
 - `/` lists targets with their latest run. Each row shows the CVE, the target purl, the official status badge, the TOTS label, and the evidence quality bar. The Add CVE form (CVE ID + purl) is flag-gated.
-- `/a/[id]` is the report page:
+- `/CVE-…/<package>@<version>` (e.g. `/CVE-2024-10491/express@5.2.1`) is the report page; old `/a/<uuid>` links redirect there:
   - claims table
   - technical and discourse evidence side by side
   - Jev scores
@@ -242,7 +242,7 @@ Phases 3 and 4 can be built in parallel.
 6. **Storage:** Neon Postgres from the Vercel Marketplace, with the full report as jsonb.
 
 ## 9. Risks
-- **Public endpoint:** with `none()`, anyone can open a chat session. Mitigations: the server-side flag check in the tool, default tools disabled, and a Firewall rate limit.
+- **Public endpoint:** with `none()`, anyone can open a chat session. Mitigations: only flag-checked server actions can queue a run, the root agent has no default tools, and a Firewall rate limit.
 - **Jev's state limit and its experimental API.** `experimental_evaluate` can change in patch releases. Pin `ai` and wrap the call in `judge.ts`.
 - **Sandbox cold start** makes live runs slow (tens of seconds or more). Saved results cover the normal page load.
 
@@ -250,6 +250,40 @@ Phases 3 and 4 can be built in parallel.
 - **Run gating:** the flag is checked in the server action, and the workflow tool only runs `queued` rows. This replaces "the tool checks the flag" and resolves the earlier Toolbar-override question.
 - **Live progress:** the run row's `stage` is polled instead of streaming the session with `useEveAgent`. eve does not follow sessions that a workflow tool opens with `ctx.agent`, so `followSubagents` wouldn't have shown investigator progress anyway.
 - **Investigator independence is enforced, not just instructed:** the technical investigator's `web_fetch` refuses GitHub issue, discussion, and PR-conversation pages, and its `web_search` is disabled.
-- **Local models:** ChatGPT-subscription mode for local dev (§5).
-- **Investigator models:** OpenAI's cyber filter rejected the PoC work, so the investigators use Claude. Anthropic's filter also stopped one ReDoS run once; the technical instructions now frame PoCs as maintainer-style regression tests, and the retry succeeded.
+- **Models:** the investigators run on Claude, and there is a local ChatGPT mode (see §11).
 - **Case 2 result:** DISPUTED, not LIKELY INVALID (see §1).
+
+## 11. Build notes: models and complications
+
+What went wrong on the first runs (2026-10-04), and what changed because of it.
+
+1. **AI Gateway free tier blocked every model.** The first seed run failed with "Free tier users do not have access to this model". The same applied to `openai/gpt-5.6-*`, `openai/gpt-6-*`, `anthropic/claude-*`, and `typesafe-ai/jev`.
+   - Fix: $10 of paid credits on the team's AI Gateway, after which all of them worked.
+   - Deployed runs need a paid balance. Check it at `https://ai-gateway.vercel.sh/v1/credits` with the OIDC token.
+   - Cost so far is about $0.55 for three full investigations plus probes.
+
+2. **ChatGPT subscription as a local fallback.** `chatgpt()` from `eve/models/openai` uses the `eve dev` /login and returns a normal AI SDK model, but it cannot run in a deployment.
+   - `agent/lib/models.ts` uses it locally unless `TOTS_MODELS=gateway`. Deployments always use Gateway.
+   - Jev is Gateway-only, and the subscription has no evaluation model. In ChatGPT mode, `judge.ts` therefore asks the ChatGPT model the same typed questions in one structured-output call.
+   - Such assessments record `judgeModel: "chatgpt/gpt-5.6-sol (Jev unavailable)"`.
+   - The seed results in the database used Gateway and Jev.
+
+3. **OpenAI's cyber safety filter refused the technical investigator.** On `openai/gpt-5.6-sol`, both seed runs failed with "This content was flagged for possible cybersecurity risk…". The investigator was writing PoCs for published advisories against library code in an isolated sandbox.
+   - OpenAI offers more permissive access ("Daybreak") on application.
+   - Instead, both investigators moved to `anthropic/claude-sonnet-5.5`.
+   - Root and claim decomposition stay on OpenAI, since they don't touch exploit details.
+   - The local ChatGPT mode still uses OpenAI models for the investigators, so expect the same refusals there.
+
+4. **Anthropic's filter stopped one ReDoS run.** On Claude, the express run succeeded, but path-to-regexp failed with `finishReason: content-filter`.
+   - The technical instructions now open by stating that this is defensive verification of a published advisory.
+   - They also require PoCs to be maintainer-style regression tests: time the generated regex on a long input compared with the fixed version, or print the string the library produces. Nothing may target a network service.
+   - The retry succeeded.
+   - Expect occasional filtered runs on new CVEs, especially DoS and RCE classes. A failed run is marked `failed` with the reason and can be re-run.
+
+5. **GitHub issue search needs a type qualifier.** `/search/issues` now returns 422 unless the query includes `is:issue` or `is:pull-request`. `github_search` adds `is:issue` when neither is given.
+
+6. **Smaller setup notes.**
+   - `vercel integration add neon` installed Neon agent skills into `agent/skills/`, which would load them into the TOTS agent. They were removed.
+   - `eve dev` added `just-bash` and `microsandbox` as devDependencies (local sandbox fallbacks; Docker wasn't running).
+   - `eve eval` won't start while `pnpm dev` runs. Use `pnpm eval -- --url http://localhost:3000`.
+   - `next dev` appends its own agent-rules block to CLAUDE.md.

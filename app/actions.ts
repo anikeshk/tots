@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTarget, queueRun } from "../agent/lib/db";
-import { CVE_ID, parsePurl } from "../agent/lib/schemas";
+import { CVE_ID, parsePurl, reportPath } from "../agent/lib/schemas";
 import { liveRuns } from "../flags";
 import { startInvestigation } from "./lib/start";
 
@@ -34,9 +34,9 @@ export async function addCve(_prev: StartState, form: FormData): Promise<StartSt
     return { error: "Enter an npm purl with a version, like pkg:npm/express@5.2.1." };
   }
 
-  const { targetId, runId } = await queueRun(cveId, purl);
+  const { runId } = await queueRun(cveId, purl);
   await startInvestigation(runId, await origin());
-  redirect(`/a/${targetId}`);
+  redirect(reportPath(cveId, purl));
 }
 
 export async function rerun(targetId: string): Promise<StartState> {

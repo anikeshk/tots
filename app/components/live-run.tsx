@@ -73,8 +73,8 @@ export function LiveRun({
         >
           {pending ? "Starting…" : "Re-run"}
         </button>
-        {!enabled && <span className="text-xs text-zinc-500">Live runs are off.</span>}
-        {error && <span className="text-xs text-rose-600">{error}</span>}
+        {!enabled && <span className="text-xs text-zinc-600 dark:text-zinc-400">Live runs are off.</span>}
+        {error && <span className="text-xs text-rose-600 dark:text-rose-400">{error}</span>}
       </div>
 
       {inFlight && (
@@ -83,7 +83,7 @@ export function LiveRun({
             const done = index < currentIndex;
             const now = index === currentIndex;
             return (
-              <li key={key} className={`flex items-center gap-2 ${done ? "text-zinc-400" : now ? "font-medium" : "text-zinc-400"}`}>
+              <li key={key} className={`flex items-center gap-2 ${done ? "text-zinc-500 dark:text-zinc-400" : now ? "font-medium" : "text-zinc-500 dark:text-zinc-400"}`}>
                 <span className="w-4 font-mono">{done ? "✓" : now ? <span className="animate-pulse">●</span> : "○"}</span>
                 {text}
               </li>

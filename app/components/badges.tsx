@@ -34,7 +34,7 @@ const VERDICT_STYLES: Record<ClaimVerdict, string> = {
   supported: "text-rose-700 dark:text-rose-300",
   contradicted: "text-emerald-700 dark:text-emerald-300",
   disputed: "text-amber-700 dark:text-amber-300",
-  unverified: "text-zinc-500",
+  unverified: "text-zinc-600 dark:text-zinc-400",
 };
 
 const VERDICT_ICONS: Record<ClaimVerdict, string> = {
@@ -59,26 +59,6 @@ export function Prob({ value }: { value: number }) {
         <span className="block h-full bg-zinc-600 dark:bg-zinc-300" style={{ width: `${Math.round(value * 100)}%` }} />
       </span>
       {value.toFixed(2)}
-    </span>
-  );
-}
-
-export function QualityBar({ checks }: { checks: { ok: boolean | null }[] }) {
-  const known = checks.filter((c) => c.ok !== null);
-  const ok = known.filter((c) => c.ok).length;
-  return (
-    <span className="inline-flex items-center gap-2 font-mono text-xs text-zinc-500" title="Evidence quality">
-      <span className="flex gap-0.5">
-        {checks.map((c, i) => (
-          <span
-            key={i}
-            className={`h-2.5 w-2.5 rounded-sm ${
-              c.ok === null ? "bg-zinc-200 dark:bg-zinc-800" : c.ok ? "bg-zinc-700 dark:bg-zinc-200" : "bg-zinc-300 dark:bg-zinc-700"
-            }`}
-          />
-        ))}
-      </span>
-      {ok}/{known.length}
     </span>
   );
 }

@@ -4,7 +4,7 @@ import { Prob, Verdict } from "./badges";
 function Card({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
   return (
     <section className={`rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900 ${className}`}>
-      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">{title}</h2>
+      <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-600 dark:text-zinc-400">{title}</h2>
       {children}
     </section>
   );
@@ -22,7 +22,7 @@ const ROLE_STYLES: Record<DiscourseRole, string> = {
 const STANCE_STYLES = {
   supports: "text-rose-700 dark:text-rose-300",
   disputes: "text-emerald-700 dark:text-emerald-300",
-  neutral: "text-zinc-500",
+  neutral: "text-zinc-600 dark:text-zinc-400",
 } as const;
 
 const JEV_LABELS: Record<string, string> = {
@@ -42,12 +42,12 @@ export function Report({ assessment: a }: { assessment: TotsAssessment }) {
       <Card title="Why this label">
         <ol className="space-y-1 font-mono text-xs">
           {a.policyTrace.map((line, i) => (
-            <li key={i} className={line.startsWith("→") ? "font-semibold" : "text-zinc-500"}>
+            <li key={i} className={line.startsWith("→") ? "font-semibold" : "text-zinc-600 dark:text-zinc-400"}>
               {line}
             </li>
           ))}
         </ol>
-        <p className="mt-3 text-xs text-zinc-500">
+        <p className="mt-3 text-xs text-zinc-600 dark:text-zinc-400">
           Generated {a.generatedAt.replace("T", " ").slice(0, 16)} UTC · investigators {a.models.technical} · judge{" "}
           {a.models.judge}
         </p>
@@ -56,7 +56,7 @@ export function Report({ assessment: a }: { assessment: TotsAssessment }) {
       <Card title="Claims">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="text-xs text-zinc-500">
+            <thead className="text-xs text-zinc-600 dark:text-zinc-400">
               <tr>
                 <th className="py-2 pr-4 font-medium">Claim</th>
                 <th className="py-2 pr-4 font-medium">Verdict</th>
@@ -69,7 +69,7 @@ export function Report({ assessment: a }: { assessment: TotsAssessment }) {
                 <tr key={c.id} className={c.id === "target" ? "bg-zinc-50 dark:bg-zinc-800/40" : ""}>
                   <td className="py-2 pr-4">
                     <div className={c.id === "target" ? "font-medium" : ""}>{c.text}</div>
-                    <div className="text-xs text-zinc-500">
+                    <div className="text-xs text-zinc-600 dark:text-zinc-400">
                       {c.kind} · asserted by {c.assertedBy.join(", ")}
                     </div>
                   </td>
@@ -93,7 +93,7 @@ export function Report({ assessment: a }: { assessment: TotsAssessment }) {
         <Card title="Technical evidence">
           <dl className="space-y-3 text-sm">
             <div>
-              <dt className="text-xs text-zinc-500">Fix</dt>
+              <dt className="text-xs text-zinc-600 dark:text-zinc-400">Fix</dt>
               <dd className="break-all">
                 {a.technical.fixReference ? (
                   <a href={a.technical.fixReference} className="underline underline-offset-2" target="_blank" rel="noreferrer">
@@ -105,14 +105,14 @@ export function Report({ assessment: a }: { assessment: TotsAssessment }) {
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-500">Vulnerable code</dt>
+              <dt className="text-xs text-zinc-600 dark:text-zinc-400">Vulnerable code</dt>
               <dd>{a.technical.vulnerableCode ?? "Not identified"}</dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-500">PoC</dt>
+              <dt className="text-xs text-zinc-600 dark:text-zinc-400">PoC</dt>
               <dd>{a.technical.poc.description}</dd>
               <details className="mt-1">
-                <summary className="cursor-pointer text-xs text-zinc-500">Script</summary>
+                <summary className="cursor-pointer text-xs text-zinc-600 dark:text-zinc-400">Script</summary>
                 <pre className="mt-1 max-h-72 overflow-auto rounded bg-zinc-100 p-2 font-mono text-xs dark:bg-zinc-950">
                   {a.technical.poc.script}
                 </pre>
@@ -120,7 +120,7 @@ export function Report({ assessment: a }: { assessment: TotsAssessment }) {
             </div>
           </dl>
           <table className="mt-4 w-full text-left text-sm">
-            <thead className="text-xs text-zinc-500">
+            <thead className="text-xs text-zinc-600 dark:text-zinc-400">
               <tr>
                 <th className="py-1 pr-3 font-medium">Version</th>
                 <th className="py-1 pr-3 font-medium">Role</th>
@@ -131,18 +131,18 @@ export function Report({ assessment: a }: { assessment: TotsAssessment }) {
               {a.technical.versionsTested.map((v, i) => (
                 <tr key={i}>
                   <td className="py-2 pr-3 font-mono text-xs">{v.version}</td>
-                  <td className="py-2 pr-3 text-xs text-zinc-500">{v.role.replace("_", " ")}</td>
+                  <td className="py-2 pr-3 text-xs text-zinc-600 dark:text-zinc-400">{v.role.replace("_", " ")}</td>
                   <td className="py-2 text-xs">
                     <span className="font-mono font-semibold">
                       {v.reproduced === null ? "not run" : v.reproduced ? "reproduced" : "not reproduced"}
                     </span>
-                    <div className="text-zinc-500">{v.observation}</div>
+                    <div className="text-zinc-600 dark:text-zinc-400">{v.observation}</div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {a.technical.notes && <p className="mt-3 text-xs text-zinc-500">{a.technical.notes}</p>}
+          {a.technical.notes && <p className="mt-3 text-xs text-zinc-600 dark:text-zinc-400">{a.technical.notes}</p>}
         </Card>
 
         <Card title="Discourse evidence">
@@ -158,7 +158,7 @@ export function Report({ assessment: a }: { assessment: TotsAssessment }) {
                   <span className={`font-mono ${STANCE_STYLES[item.stance]}`}>
                     {item.stance} {item.claimId}
                   </span>
-                  {item.date && <span className="text-zinc-400">{item.date.slice(0, 10)}</span>}
+                  {item.date && <span className="text-zinc-500 dark:text-zinc-400">{item.date.slice(0, 10)}</span>}
                 </div>
                 <blockquote className="mt-1 border-l-2 border-zinc-300 pl-3 text-zinc-700 dark:border-zinc-700 dark:text-zinc-300">
                   {item.quote}
@@ -168,7 +168,7 @@ export function Report({ assessment: a }: { assessment: TotsAssessment }) {
           </ul>
           {a.discourse.unresolved.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-xs font-semibold text-zinc-500">Unresolved</h3>
+              <h3 className="text-xs font-semibold text-zinc-600 dark:text-zinc-400">Unresolved</h3>
               <ul className="mt-1 list-disc space-y-1 pl-5 text-sm">
                 {a.discourse.unresolved.map((q, i) => (
                   <li key={i}>{q}</li>
@@ -202,7 +202,7 @@ export function Report({ assessment: a }: { assessment: TotsAssessment }) {
         <Card title="Official record">
           <p className="mb-3 text-sm text-zinc-700 dark:text-zinc-300">{a.record.description}</p>
           <table className="w-full text-left text-sm">
-            <thead className="text-xs text-zinc-500">
+            <thead className="text-xs text-zinc-600 dark:text-zinc-400">
               <tr>
                 <th className="py-1 pr-3 font-medium">Source</th>
                 <th className="py-1 pr-3 font-medium">Affected ranges</th>
@@ -223,7 +223,7 @@ export function Report({ assessment: a }: { assessment: TotsAssessment }) {
               ))}
             </tbody>
           </table>
-          <p className="mt-3 text-xs text-zinc-500">
+          <p className="mt-3 text-xs text-zinc-600 dark:text-zinc-400">
             OSV reports for this exact version: {a.record.osvTargetVulns.length ? a.record.osvTargetVulns.join(", ") : "none"}
             {a.record.cvss ? ` · CVSS ${a.record.cvss.score} ${a.record.cvss.severity}` : ""}
             {a.record.cwes.length ? ` · ${a.record.cwes.join(", ")}` : ""}

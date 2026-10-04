@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository.
 
 ## Project
 
-TOTS (Threat Opinion & Technical Scrutiny) assesses whether a CVE is valid for a given package version (npm only). It is a Next.js app plus an [eve](https://eve.dev/docs) agent, deployed together on Vercel.
+TOTS assesses whether a CVE is valid for a given package version (npm only). It is a Next.js app plus an [eve](https://eve.dev/docs) agent, deployed together on Vercel.
 
 **`PLAN.md` is the design.** Read it before changing behaviour, and keep its Decisions (§8) and Changes (§10) sections current.
 
@@ -23,7 +23,7 @@ agent/                      # The eve agent, compiled by eve, mounted at /eve/v1
   subagents/discourse/      # Who-said-what investigator (GitHub tools, web_fetch, web_search)
   lib/                      # Shared with the UI: schemas, db, records, claims, judge, policy, models, github
   skills/eve/               # eve skill (installed via skills-lock.json, do not hand-edit)
-app/                        # Next.js UI: list (/), report (/a/[id]), server actions, /api/runs/[id]
+app/                        # Next.js UI: list (/), report (/[cve]/[...pkg], e.g. /CVE-2024-10491/express@5.2.1), server actions, /api/runs/[id]
 flags.ts                    # live-runs flag (Vercel Flags)
 db/migrations/              # Plain SQL, applied by pnpm db:migrate
 evals/                      # eve evals: one per seed case + provenance

@@ -96,6 +96,11 @@ export async function listTargets(): Promise<TargetSummary[]> {
     ORDER BY t.created_at ASC`) as TargetSummary[];
 }
 
+export async function getTargetId(cveId: string, purl: string) {
+  const [row] = (await sql()`SELECT id FROM targets WHERE cve_id = ${cveId} AND purl = ${purl}`) as { id: string }[];
+  return row?.id ?? null;
+}
+
 export async function getTarget(id: string) {
   const [target] = (await sql()`SELECT * FROM targets WHERE id = ${id}`) as TargetRow[];
   if (!target) return null;

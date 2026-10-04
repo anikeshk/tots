@@ -171,7 +171,14 @@ export function parsePurl(purl: string): Target {
   const match = /^pkg:npm\/(.+)@([^@/]+)$/.exec(purl.trim());
   if (!match) throw new Error(`Unsupported purl (npm only, with a version): ${purl}`);
   const name = decodeURIComponent(match[1]!);
-  return { purl: `pkg:npm/${match[1]}@${match[2]}`, ecosystem: "npm", name, version: match[2]! };
+  // Canonical purl form: the scope's "@" is percent-encoded.
+  const encoded = name.startsWith("@") ? `%40${name.slice(1)}` : name;
+  return { purl: `pkg:npm/${encoded}@${match[2]}`, ecosystem: "npm", name, version: match[2]! };
 }
 
 export const CVE_ID = /^CVE-\d{4}-\d{4,}$/;
+
+/** Readable report URL, e.g. /CVE-2024-10491/express@5.2.1 or /CVE-…/@scope/pkg@1.2.3. */
+export function reportPath(cveId: string, purl: string) {
+  return `/${cveId}/${purl.replace(/^pkg:npm\//, "").replace(/%40/g, "@")}`;
+}
