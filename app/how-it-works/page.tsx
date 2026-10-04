@@ -73,7 +73,7 @@ const FUTURE: { title: string; body: React.ReactNode }[] = [
   "label": "DISPUTED",
   "code": "reproduces on 5.2.1",
   "maintainers": "dispute",
-  "report": "https://tots.dev/CVE-2024-10491/express@5.2.1"
+  "report": "https://tots-security.vercel.app/CVE-2024-10491/express@5.2.1"
 }`}
         </pre>
       </>

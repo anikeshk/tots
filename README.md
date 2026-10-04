@@ -2,6 +2,8 @@
 
 **Is this CVE real for this package version?**
 
+**Live:** [tots-security.vercel.app](https://tots-security.vercel.app) · [How it works](https://tots-security.vercel.app/how-it-works)
+
 A published CVE can still be disputed, overstated, or wrongly scoped. Scanners repeat it, maintainers argue with it, and the affected version range drifts between databases. TOTS takes one CVE and one package version and answers the two questions a security engineer would ask:
 
 1. **Does the code actually do this?** An agent reproduces it in an isolated sandbox.
@@ -15,8 +17,8 @@ Built with [eve](https://eve.dev/docs), Vercel's framework for durable agents, a
 
 | CVE | Package | Code (sandbox) | People (discourse) | TOTS |
 |---|---|---|---|---|
-| [CVE-2024-45296](https://github.com/advisories/GHSA-9wv6-86v2-598j) | `path-to-regexp@6.2.2` | ReDoS reproduces on 6.2.2 (~300ms at 800 chars, rising steeply with length); fixed 6.3.0 is clean | Maintainers confirm | **SUPPORTED** |
-| CVE-2024-10491 | `express@5.2.1` | The same Link-header injection reproduces on 3.x, 4.x, and 5.2.1; no fix commit exists | Maintainers say only 3.x is affected ([#6222](https://github.com/expressjs/express/issues/6222)); scanners flag 4.x/5.x | **DISPUTED** |
+| [CVE-2024-45296](https://tots-security.vercel.app/CVE-2024-45296/path-to-regexp@6.2.2) | `path-to-regexp@6.2.2` | ReDoS reproduces on 6.2.2 (~300ms at 800 chars, rising steeply with length); fixed 6.3.0 is clean | Maintainers confirm | **SUPPORTED** |
+| [CVE-2024-10491](https://tots-security.vercel.app/CVE-2024-10491/express@5.2.1) | `express@5.2.1` | The same Link-header injection reproduces on 3.x, 4.x, and 5.2.1; no fix commit exists | Maintainers say only 3.x is affected ([#6222](https://github.com/expressjs/express/issues/6222)); scanners flag 4.x/5.x | **DISPUTED** |
 
 The second row is the case TOTS was built for. Vulnerability databases scope the CVE to Express 3.x. Scanner vendors extend it to 4.x and 5.x, and the maintainers call those reports wrong. TOTS's sandbox shows the behaviour is unchanged across all three major versions, so neither side is simply right, and the report shows both.
 
