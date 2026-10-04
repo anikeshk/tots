@@ -15,24 +15,14 @@ Built with [eve](https://eve.dev/docs), Vercel's framework for durable agents, a
 
 ## How it works
 
-```
-CVE + package@version
-        │
-  01  Record      NVD + GitHub Advisories + OSV over plain HTTP (no LLM).
-        │         Each source keeps its own version range; disagreement is evidence.
-  02  Claims      Split the description into atomic claims, plus
-        │         "<package@version> is affected"
-        ├──────────────────────────────┐   in parallel, neither sees the other
-  03a Technical investigator      03b Discourse investigator
-      Vercel Sandbox: install          GitHub issues/PRs, advisories, vendor notes.
-      target + fixed + positive        Who said what, their role (GitHub's own
-      control, read the patch,         maintainer marker), verbatim quote, link.
-      run one PoC against all.
-        ├──────────────────────────────┘
-  04  Judge       Jev answers typed questions (affected? reproduced? credible
-        │         dispute? how authoritative?) with probabilities, not prose.
-  05  Policy      Fixed thresholds → label. Every report shows the rule that fired.
-```
+One durable eve workflow runs every assessment. The two investigators run in parallel and never see each other's work. A judge scores what they found, and fixed thresholds pick the label.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/pipeline-dark.png">
+    <img alt="TOTS pipeline: record, claims, technical and discourse investigators in parallel, judge, policy" src="docs/images/pipeline-light.png" width="720">
+  </picture>
+</p>
 
 ### Design decisions
 
@@ -47,52 +37,20 @@ CVE + package@version
 
 Everything runs in one Vercel project. The Vercel services authenticate with the project's OIDC token, so there are no AI provider keys to manage.
 
-```mermaid
-flowchart TB
-  browser([Browser])
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/architecture-dark.png">
+    <img alt="TOTS architecture: one Vercel project with Next.js, Vercel Flags, Neon, the eve agent service with Vercel Workflow and Sandbox, and Vercel AI Gateway" src="docs/images/architecture-light.png" width="720">
+  </picture>
+</p>
 
-  subgraph vercel["▲ Vercel · one project, one deployment"]
-    direction TB
-    next["<b>Next.js on Vercel</b><br/>pages · report UI · server actions"]
-    flags["<b>Vercel Flags</b><br/>live-runs gate"]
-    neon[("<b>Neon Postgres</b><br/>via Vercel Marketplace")]
-
-    subgraph eve["eve agent service · /eve/v1"]
-      direction TB
-      wf["<b>Vercel Workflow</b><br/>investigate_cve · durable steps"]
-      tech["<b>Technical subagent</b><br/>→ Vercel Sandbox"]
-      disc["<b>Discourse subagent</b><br/>who said what"]
-      wf -->|in parallel| tech
-      wf -->|in parallel| disc
-    end
-
-    gw["<b>Vercel AI Gateway</b><br/>Claude · OpenAI · Jev"]
-  end
-
-  data[("Public data<br/>NVD · GHSA · OSV · GitHub · npm")]
-
-  browser -->|HTTPS| next
-  next -.->|checks| flags
-  next -->|queue run · open session| wf
-  wf -->|stage · report| neon
-  next -->|read reports| neon
-  tech -->|model calls| gw
-  disc -->|model calls| gw
-  wf -->|claims · Jev judge| gw
-  wf --> data
-  tech --> data
-  disc --> data
-```
-
-| | |
-|---|---|
-| **eve** | Durable agent runtime: the orchestrating workflow tool and both subagents |
-| **Vercel Workflow** | Each run is a durable workflow, so a crash or redeploy resumes it mid-step |
-| **Vercel Sandbox** | Isolated microVMs for PoCs, with network egress limited to npm and GitHub |
-| **Vercel AI Gateway** | Claude (investigators), OpenAI (claim decomposition), Jev (judge) |
-| **Vercel Flags** | `live-runs` gates new investigations; off in production by default |
-| **Neon via Vercel Marketplace** | Postgres for runs, stages, labels, and full reports |
-| **Next.js on Vercel** | The UI, deployed alongside the agent with `withEve` |
+- **eve**: Durable agent runtime: the orchestrating workflow tool and both subagents
+- **Vercel Workflow**: Each run is a durable workflow, so a crash or redeploy resumes it mid-step
+- **Vercel Sandbox**: Isolated microVMs for PoCs, with network egress limited to npm and GitHub
+- **Vercel AI Gateway**: Claude (investigators), OpenAI (claim decomposition), Jev (judge)
+- **Vercel Flags**: `live-runs` gates new investigations; off in production by default
+- **Neon via Vercel Marketplace**: Postgres for runs, stages, labels, and full reports
+- **Next.js on Vercel**: The UI, deployed alongside the agent with `withEve`
 
 The public agent endpoint accepts anonymous requests. Only a flag-checked server action can create a `queued` run, and the workflow only executes runs it can atomically claim from `queued`, so the open endpoint can't start an investigation on its own. A Vercel Firewall rule also rate-limits `/eve/v1` per IP.
 
