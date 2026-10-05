@@ -107,6 +107,21 @@ export default async function HowItWorks() {
           drifts between databases. TOTS takes one CVE and one package version and asks the two questions a security
           engineer would: <em>does the code actually do this?</em> and <em>what do the people who own it say?</em>
         </p>
+        <Link
+          href="/anatomy-of-a-cve"
+          className="mt-6 flex flex-col gap-2 rounded-lg border-2 border-sky-400 bg-sky-50 p-4 transition-colors hover:border-sky-500 hover:bg-sky-100 sm:flex-row sm:items-center sm:justify-between sm:gap-4 dark:border-sky-700 dark:bg-sky-950/50 dark:hover:border-sky-500 dark:hover:bg-sky-950"
+        >
+          <span>
+            <span className="font-medium text-sky-950 dark:text-sky-100">New to security, or want the background?</span>{" "}
+            <span className="text-sm text-sky-900/80 dark:text-sky-200/80">
+              See how a CVE goes from discovery to disclosure, dispute, and patch, plus a glossary of every acronym on
+              this page.
+            </span>
+          </span>
+          <span className="shrink-0 rounded-md bg-sky-600 px-3 py-1.5 text-sm font-medium text-white dark:bg-sky-500 dark:text-sky-950">
+            Anatomy of a CVE →
+          </span>
+        </Link>
       </header>
 
       <Section title="The pipeline">

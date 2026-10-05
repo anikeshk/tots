@@ -252,6 +252,7 @@ Phases 3 and 4 can be built in parallel.
 - **Investigator independence is enforced, not just instructed:** the technical investigator's `web_fetch` refuses GitHub issue, discussion, and PR-conversation pages, and its `web_search` is disabled.
 - **Models:** the investigators run on Claude, and there is a local ChatGPT mode (see §11).
 - **Case 2 result:** DISPUTED, not LIKELY INVALID (see §1).
+- **Anatomy of a CVE page:** `/anatomy-of-a-cve` explains the usual CVE lifecycle (an illustrated five-scene diagram with a made-up example, then ten short steps, from the CERT CVD guide and cve.org) and has a glossary of every acronym used on the site. A banner on How it works links to it.
 
 ## 11. Build notes: models and complications
 
