@@ -1,10 +1,10 @@
-# TOTS
+# tots
 
 **Is this CVE real for this package version?**
 
 **Live:** [tots-security.vercel.app](https://tots-security.vercel.app) · [How it works](https://tots-security.vercel.app/how-it-works)
 
-A published CVE can still be disputed, overstated, or wrongly scoped. Scanners repeat it, maintainers argue with it, and the affected version range drifts between databases. TOTS takes one CVE and one package version and answers the two questions a security engineer would ask:
+A published CVE can still be disputed, overstated, or wrongly scoped. Scanners repeat it, maintainers argue with it, and the affected version range drifts between databases. Given one CVE and one package version, tots answers the two questions a security engineer would ask:
 
 1. **Does the code actually do this?** An agent reproduces it in an isolated sandbox.
 2. **What do the people who own it say?** A second agent collects maintainer, database, and vendor statements, each with a verbatim quote and a link.
@@ -20,7 +20,7 @@ One durable eve workflow runs every assessment. The two investigators run in par
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/pipeline-dark.png">
-    <img alt="TOTS pipeline: record, claims, technical and discourse investigators in parallel, judge, policy" src="docs/images/pipeline-light.png" width="720">
+    <img alt="The tots pipeline: record, claims, technical and discourse investigators in parallel, judge, policy" src="docs/images/pipeline-light.png" width="720">
   </picture>
 </p>
 
@@ -30,8 +30,8 @@ One durable eve workflow runs every assessment. The two investigators run in par
 - **Positive controls.** A PoC that fails on the target only counts if it succeeds on a known-vulnerable version.
 - **The judge judges.** Jev never investigates. It scores evidence that the investigators already gathered.
 - **No model picks the label.** Deterministic code maps Jev's probabilities to a label, and every report shows the policy trace.
-- **Claim by claim.** Each claim in the CVE gets its own verdict, so "the bug is real but this version range is wrong" is a result TOTS can give.
-- **The official status stays visible.** TOTS doesn't override the CVE Program; it shows the official status next to its own assessment.
+- **Claim by claim.** Each claim in the CVE gets its own verdict, so "the bug is real but this version range is wrong" is a result tots can give.
+- **The official status stays visible.** The CVE Program has the final word; tots shows its status next to the assessment.
 
 ## Built on Vercel
 
@@ -40,7 +40,7 @@ Everything runs in one Vercel project. The Vercel services authenticate with the
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/architecture-dark.png">
-    <img alt="TOTS architecture: one Vercel project with Next.js, Vercel Flags, Neon, the eve agent service with Vercel Workflow and Sandbox, and Vercel AI Gateway" src="docs/images/architecture-light.png" width="720">
+    <img alt="The tots architecture: one Vercel project with Next.js, Vercel Flags, Neon, the eve agent service with Vercel Workflow and Sandbox, and Vercel AI Gateway" src="docs/images/architecture-light.png" width="720">
   </picture>
 </p>
 
@@ -90,7 +90,7 @@ evals/  tests/  db/migrations/  scripts/
 
 - **A threat-intel feed.** `GET api.tots.dev/CVE-2024-10491?purl=pkg:npm/express@5.2.1` → label plus evidence, for scanners and SBOM tools to query before raising an alert.
 - **VEX output.** Emit CycloneDX/OpenVEX statements from the label, so the assessment travels with the SBOM.
-- **In the pull request.** A GitHub app that comments the TOTS label on Dependabot and scanner PRs.
+- **In the pull request.** A GitHub app that comments the tots label on Dependabot and scanner PRs.
 - **Watch mode.** Scheduled re-checks when a fix ships, a range changes, or a maintainer weighs in.
 
 ## License

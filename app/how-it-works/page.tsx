@@ -6,7 +6,7 @@ import { LabelBadge } from "../components/badges";
 import { CodeSignal, PeopleSignal } from "../components/signals";
 import { Architecture } from "./architecture";
 
-export const metadata: Metadata = { title: "How it works · TOTS" };
+export const metadata: Metadata = { title: "How it works · tots" };
 export const dynamic = "force-dynamic";
 
 function Step({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
@@ -62,7 +62,7 @@ const LABELS: { label: Label; rule: string }[] = [
 
 const FUTURE: { title: string; body: React.ReactNode }[] = [
   {
-    title: "TOTS as a threat-intel feed",
+    title: "A threat-intel feed",
     body: (
       <>
         A read-only API that any scanner, SBOM tool, or TIP can query before it raises an alert:
@@ -85,7 +85,7 @@ const FUTURE: { title: string; body: React.ReactNode }[] = [
   },
   {
     title: "In the pull request",
-    body: "A GitHub app that comments on Dependabot and scanner PRs with the TOTS label, so reviewers stop arguing about the same CVE in every repo.",
+    body: "A GitHub app that comments on Dependabot and scanner PRs with the tots label, so reviewers stop arguing about the same CVE in every repo.",
   },
   {
     title: "Watch, don't snapshot",
@@ -101,10 +101,10 @@ export default async function HowItWorks() {
   return (
     <div className="mx-auto max-w-3xl space-y-12">
       <header className="space-y-3">
-        <h1 className="text-3xl font-semibold tracking-tight">How TOTS works</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">How tots works</h1>
         <p className="text-lg text-zinc-600 dark:text-zinc-400">
           A CVE is a statement, not a verdict. Scanners repeat it, maintainers argue with it, and the version range
-          drifts between databases. TOTS takes one CVE and one package version and asks the two questions a security
+          drifts between databases. Given one CVE and one package version, tots asks the two questions a security
           engineer would: <em>does the code actually do this?</em> and <em>what do the people who own it say?</em>
         </p>
         <Link
@@ -178,7 +178,7 @@ export default async function HowItWorks() {
           ))}
         </ul>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          The official CVE status is always shown next to the label. TOTS doesn&apos;t override the CVE Program; it
+          The official CVE status is always shown next to the label. The CVE Program has the final word; tots
           says how well the public evidence supports the claim for this version.
         </p>
       </Section>
@@ -207,7 +207,7 @@ export default async function HowItWorks() {
           </div>
           {a.label === "DISPUTED" && (
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              This is the case TOTS exists for. Scanners flag it, the maintainers say it doesn&apos;t apply, and the
+              This is the case tots exists for. Scanners flag it, the maintainers say it doesn&apos;t apply, and the
               sandbox shows the behaviour is still there. Neither side is simply right, and the report shows both.
             </p>
           )}
@@ -216,7 +216,7 @@ export default async function HowItWorks() {
 
       <Section title="Under the hood">
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          TOTS is built on Vercel end to end. The site, the agent, the durable workflow, the sandbox, every model call,
+          Everything in tots is built on Vercel. The site, the agent, the durable workflow, the sandbox, every model call,
           the feature flag, and the database all live in one Vercel project. The Vercel services authenticate with the
           project&apos;s OIDC token, so there are no AI provider keys to manage.
         </p>

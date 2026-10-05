@@ -16,7 +16,7 @@ export default async function Home() {
       <section className="space-y-2">
         <h1 className="text-2xl font-semibold tracking-tight">Is this CVE real for this package version?</h1>
         <p className="text-zinc-600 dark:text-zinc-400">
-          A published CVE can still be disputed, overstated, or wrongly scoped. For each CVE and package version, TOTS
+          A published CVE can still be disputed, overstated, or wrongly scoped. For each CVE and package version, tots
           runs two independent investigations: one tests the code in a sandbox, and one collects what maintainers,
           databases, and vendors have said. A judge model (Jev) scores the evidence, and a fixed policy turns those
           scores into the label.
@@ -30,7 +30,7 @@ export default async function Home() {
               <th className="px-4 py-3 font-medium">CVE</th>
               <th className="px-4 py-3 font-medium">Package version</th>
               <th className="px-4 py-3 font-medium">Official</th>
-              <th className="px-4 py-3 font-medium">TOTS</th>
+              <th className="px-4 py-3 font-medium">tots</th>
               <th className="hidden px-4 py-3 font-medium md:table-cell">Code</th>
               <th className="hidden px-4 py-3 font-medium md:table-cell">People</th>
             </tr>

@@ -1,8 +1,8 @@
-# TOTS — Plan
+# tots — Plan
 
-**TOTS.** Given a published CVE and the component@version it is being flagged on, decide how well the public evidence supports it: real, disputed, overstated, or noise?
+**What tots does.** Given a published CVE and the component@version it is being flagged on, decide how well the public evidence supports it: real, disputed, overstated, or noise?
 
-TOTS does not replace the CVE Program's status. It shows the official status (`PUBLISHED`, `DISPUTED`, `REJECTED`) next to its own evidence-based assessment and cites a source for every conclusion.
+The CVE Program's status stays authoritative: tots does not replace it. It shows the official status (`PUBLISHED`, `DISPUTED`, `REJECTED`) next to its own evidence-based assessment and cites a source for every conclusion.
 
 Status: built. Changes made during the build are listed in §10.
 
@@ -45,7 +45,7 @@ Only express@5.2.1 is being judged in case 2. The technical agent still runs the
      │          ├── subagent: technical  (own Vercel Sandbox)
      │          └── subagent: discourse  (web_fetch + GitHub API)
      │   4. judge ── evaluate() with typesafe-ai/jev over the compact evidence bundle
-     │   5. policy ── deterministic thresholds → TOTS label (agent/lib/policy.ts)
+     │   5. policy ── deterministic thresholds → tots label (agent/lib/policy.ts)
      │
      └── flag "live-runs" (Vercel Flags) gates Re-run / Add CVE, in the UI and in the tool
 ```
@@ -171,7 +171,7 @@ Access goes through `@neondatabase/serverless` with a lazily created client, so 
 - **Cost guard:** the root agent's default tools (bash, web_search, …) are switched off, so anonymous chat with `/eve/v1` can't do much. A Vercel Firewall rate limit on `/eve/v1/*` is a cheap extra layer.
 
 ### 3.10 UI — `app/` (Next.js + `withEve`)
-- `/` lists targets with their latest run. Each row shows the CVE, the target purl, the official status badge, the TOTS label, and the evidence quality bar. The Add CVE form (CVE ID + purl) is flag-gated.
+- `/` lists targets with their latest run. Each row shows the CVE, the target purl, the official status badge, the tots label, and the evidence quality bar. The Add CVE form (CVE ID + purl) is flag-gated.
 - `/CVE-…/<package>@<version>` (e.g. `/CVE-2024-10491/express@5.2.1`) is the report page; old `/a/<uuid>` links redirect there:
   - claims table
   - technical and discourse evidence side by side
@@ -284,7 +284,7 @@ What went wrong on the first runs (2026-10-04), and what changed because of it.
 5. **GitHub issue search needs a type qualifier.** `/search/issues` now returns 422 unless the query includes `is:issue` or `is:pull-request`. `github_search` adds `is:issue` when neither is given.
 
 6. **Smaller setup notes.**
-   - `vercel integration add neon` installed Neon agent skills into `agent/skills/`, which would load them into the TOTS agent. They were removed.
+   - `vercel integration add neon` installed Neon agent skills into `agent/skills/`, which would load them into the tots agent. They were removed.
    - `eve dev` added `just-bash` and `microsandbox` as devDependencies (local sandbox fallbacks; Docker wasn't running).
    - `eve eval` won't start while `pnpm dev` runs. Use `pnpm eval -- --url http://localhost:3000`.
    - `next dev` appends its own agent-rules block to CLAUDE.md.

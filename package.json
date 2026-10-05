@@ -1,7 +1,7 @@
 {
   "name": "tots",
   "version": "1.0.0",
-  "description": "TOTS: is this CVE real for this package version?",
+  "description": "tots: is this CVE real for this package version?",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

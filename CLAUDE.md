@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository.
 
 ## Project
 
-TOTS assesses whether a CVE is valid for a given package version (npm only). It is a Next.js app plus an [eve](https://eve.dev/docs) agent, deployed together on Vercel.
+Given a CVE and a package version (npm only), tots assesses whether the CVE is valid for that version. It is a Next.js app plus an [eve](https://eve.dev/docs) agent, deployed together on Vercel.
 
 **`PLAN.md` is the design.** Read it before changing behaviour, and keep its Decisions (§8) and Changes (§10) sections current.
 
@@ -55,7 +55,7 @@ pnpm eval             # eve evals; while `pnpm dev` runs, add `-- --url http://l
 - **Workflow tools:** side effects, `process.env`, and dates belong in `"use step"` functions; the workflow body must stay deterministic.
 - **Model output schemas:** avoid `z.record`, `.optional()`, and array `.max()` in schemas sent to models (`TechnicalReport`, `DiscourseReport`, `ClaimList`).
 - **Vercel:** linked to the `tots` project. Run `vercel env pull` to refresh `.env.local` (the OIDC token expires). Never commit `.env*` files.
-- **Marketplace installs** (e.g. `vercel integration add`) may drop provider skills into `agent/skills/`, which would load them into the TOTS agent. Remove them.
+- **Marketplace installs** (e.g. `vercel integration add`) may drop provider skills into `agent/skills/`, which would load them into the tots agent. Remove them.
 - Do not edit anything under `.eve/`, `.next/`, or `node_modules/.cache/eve/`; they are generated.
 
 <!-- BEGIN:nextjs-agent-rules -->

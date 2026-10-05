@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Lifecycle } from "./lifecycle";
 
-export const metadata: Metadata = { title: "Anatomy of a CVE · TOTS" };
+export const metadata: Metadata = { title: "Anatomy of a CVE · tots" };
 
 type Stage = {
   n: string;
@@ -67,7 +67,7 @@ const STAGES: Stage[] = [
     title: "Enrichment",
     who: "NVD, GitHub, OSV",
     body: "Each database adds its own severity score and machine-readable version range. They usually match; occasionally one lists different versions.",
-    tots: "TOTS reads all three and keeps each source's range, so a mismatch shows up instead of being hidden.",
+    tots: "Here, tots reads all three and keeps each source's range, so a mismatch shows up instead of being hidden.",
   },
   {
     n: "09",
@@ -87,7 +87,7 @@ const STAGES: Stage[] = [
     title: "Upgrade",
     who: "Everyone using the package",
     body: "The longest stage. Old versions stay installed for years, and every team asks: does this apply to my version?",
-    tots: "That's the question TOTS answers.",
+    tots: "That's the question tots answers.",
   },
 ];
 
@@ -103,15 +103,15 @@ const GLOSSARY: { term: string; full: string; context: string }[] = [
   { term: "OSV", full: "Open Source Vulnerabilities", context: "Google's open database that merges advisories from many ecosystems, with precise version ranges." },
   { term: "CVSS", full: "Common Vulnerability Scoring System", context: "The 0–10 severity score. Describes the worst case, not your version or setup." },
   { term: "CWE", full: "Common Weakness Enumeration", context: "A list of bug types, e.g. CWE-1333 for slow regexes. Says what kind of bug, not whether it's real." },
-  { term: "PoC", full: "Proof of Concept", context: "A minimal script that shows the bug happening. TOTS runs one in a sandbox against your version." },
+  { term: "PoC", full: "Proof of Concept", context: "A minimal script that shows the bug happening. Each tots run tries one in a sandbox against your version." },
   { term: "PR", full: "Pull Request", context: "A proposed code change on GitHub. Fixes and many arguments about CVEs live in PRs and issues." },
   { term: "SBOM", full: "Software Bill of Materials", context: "A list of every package and version in a piece of software. Scanners match it against CVEs." },
   { term: "VEX", full: "Vulnerability Exploitability eXchange", context: "A statement that a product is or isn't affected by a CVE. CycloneDX and OpenVEX are two formats for it." },
   { term: "TIP", full: "Threat Intelligence Platform", context: "A tool that collects security feeds for a security team." },
   { term: "purl", full: "Package URL", context: "A standard package identifier, e.g. pkg:npm/express@5.2.1." },
-  { term: "npm", full: "Node Package Manager", context: "The JavaScript package registry. TOTS only covers npm packages for now." },
-  { term: "HTTP(S)", full: "HyperText Transfer Protocol (Secure)", context: "How the web fetches data. TOTS reads NVD, GitHub, and OSV with plain HTTP calls." },
-  { term: "OIDC", full: "OpenID Connect", context: "A sign-in standard. Vercel issues short-lived OIDC tokens so TOTS needs no stored API keys." },
+  { term: "npm", full: "Node Package Manager", context: "The JavaScript package registry. For now, tots only covers npm packages." },
+  { term: "HTTP(S)", full: "HyperText Transfer Protocol (Secure)", context: "How the web fetches data. For the CVE record, tots reads NVD, GitHub, and OSV with plain HTTP calls." },
+  { term: "OIDC", full: "OpenID Connect", context: "A sign-in standard. Vercel issues short-lived OIDC tokens so tots needs no stored API keys." },
   { term: "AI", full: "Artificial Intelligence", context: "Here: the language models that break down claims, investigate, and judge." },
 ];
 
@@ -165,7 +165,7 @@ export default function AnatomyOfACve() {
         </ol>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
           Real CVEs skip and overlap these steps: a bug is posted publicly first, or a CVE is published before any fix
-          exists. That&apos;s why TOTS checks the code and reads the discussion instead of trusting the record.{" "}
+          exists. That&apos;s why tots checks the code and reads the discussion instead of trusting the record.{" "}
           <Link href="/how-it-works" className="font-medium text-zinc-900 underline underline-offset-4 dark:text-zinc-100">
             See how it works →
           </Link>

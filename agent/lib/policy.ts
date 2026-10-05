@@ -8,7 +8,7 @@ import type {
   TechnicalReport,
 } from "./schemas";
 
-// Deterministic mapping from Jev's answers to a TOTS label. No model decides the label;
+// Deterministic mapping from Jev's answers to a tots label. No model decides the label;
 // every rule that fires (or is skipped) is recorded in the trace so a reviewer can follow it.
 
 const fmt = (n: number) => n.toFixed(2);

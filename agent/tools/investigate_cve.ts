@@ -15,7 +15,7 @@ import {
   type TotsAssessment,
 } from "../lib/schemas";
 
-// Orchestrates one TOTS run. A run can only start from a `queued` row, which only the
+// Orchestrates one tots run. A run can only start from a `queued` row, which only the
 // flag-checked Next.js server action creates, so the public /eve/v1 route cannot start one.
 
 async function claim(runId: string, sessionId: string) {
@@ -104,7 +104,7 @@ function briefing(record: CveRecord, list: Claim[], task: string) {
 
 export default defineWorkflowTool({
   description:
-    "Run a TOTS investigation for a queued run ID: fetch the CVE record, split it into claims, run the technical and discourse investigators in parallel, judge the evidence with Jev, and save the assessment.",
+    "Run a tots investigation for a queued run ID: fetch the CVE record, split it into claims, run the technical and discourse investigators in parallel, judge the evidence with Jev, and save the assessment.",
   inputSchema: z.object({ runId: z.string().uuid() }),
   async *execute({ runId }, ctx) {
     "use workflow";

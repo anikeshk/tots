@@ -4,7 +4,7 @@ import { VercelToolbar } from "@vercel/toolbar/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TOTS",
+  title: "tots",
   description: "Is this CVE technically real for this package version, disputed, overstated, or noise?",
 };
 
@@ -15,7 +15,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <header className="border-b border-zinc-200 dark:border-zinc-800">
           <nav className="mx-auto flex max-w-6xl items-baseline gap-8 px-4 py-5">
             <Link href="/" className="font-mono text-2xl font-bold tracking-tight">
-              TOTS
+              tots
             </Link>
             <Link
               href="/how-it-works"
